@@ -1,9 +1,11 @@
+import 'dart:developer' as dev;
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:jsonplaceholder_gallery/models/album.dart';
-import 'package:jsonplaceholder_gallery/models/photo.dart';
-import 'package:jsonplaceholder_gallery/services/fetch.dart';
+import 'album_page.dart';
+import 'models/album.dart';
+import 'models/photo.dart';
+import 'services/fetch.dart';
 
 void main() {
   runApp(const MyApp());
@@ -68,6 +70,7 @@ class _MyHomePageState extends State<MyHomePage> {
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
               if (snapshot.hasData) {
+                dev.log(snapshot.data!.length.toString());
                 return Scrollbar(
                   child: ListView.builder(
                     itemCount: snapshot.data!.length,
@@ -126,7 +129,14 @@ class AlbumCard extends StatelessWidget {
           ),
         ),
         onTap: () {
-          List<Photo> photos = getAlbumPhotos(album?.id);
+          List<Photo> albumPhotos = getAlbumPhotos(album?.id);
+          Route route = MaterialPageRoute(
+            builder: ((context) => AlbumPage(
+                  album: album!,
+                  albumPhotos: albumPhotos,
+                )),
+          );
+          Navigator.push(context, route);
         },
       ),
     );
