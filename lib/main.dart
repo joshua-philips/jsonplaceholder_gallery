@@ -1,148 +1,28 @@
-import 'dart:developer' as dev;
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'album_page.dart';
-import 'models/album.dart';
-import 'models/photo.dart';
-import 'services/fetch.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'pages/myhome_page.dart';
+import 'constants/mytheme_data.dart';
+import 'providers/my_theme.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const ProviderScope(child: MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    MyThemeMode myTheme = ref.watch(myThemeProvider);
+
     return MaterialApp(
       title: 'Placeholder Album',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      themeMode: myTheme == MyThemeMode.dark ? ThemeMode.dark : ThemeMode.light,
+      theme: lightTheme,
+      darkTheme: darkTheme,
       home: const MyHomePage(title: 'Placeholder Album'),
     );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  List<Photo> photos = [];
-
-  Future<List<Album>> fetchAlbums() async {
-    List<Album> albums = [];
-    List<dynamic> data =
-        await Fetch().fetchList("https://jsonplaceholder.typicode.com/albums");
-    for (var element in data) {
-      albums.add(Album.fromJson(element));
-    }
-    await fetchPhotos();
-    return albums;
-  }
-
-  Future fetchPhotos() async {
-    List<dynamic> data =
-        await Fetch().fetchList("https://jsonplaceholder.typicode.com/photos");
-    for (var element in data) {
-      photos.add(Photo.fromJson(element));
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: FutureBuilder(
-          future: fetchAlbums(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.done) {
-              if (snapshot.hasData) {
-                dev.log(snapshot.data!.length.toString());
-                return Scrollbar(
-                  child: ListView.builder(
-                    itemCount: snapshot.data!.length,
-                    itemBuilder: (context, index) {
-                      return AlbumCard(
-                        album: snapshot.data![index],
-                        photos: photos,
-                      );
-                    },
-                  ),
-                );
-              }
-            }
-            return const CircularProgressIndicator();
-          },
-        ),
-      ),
-    );
-  }
-}
-
-class AlbumCard extends StatelessWidget {
-  final List<Photo> photos;
-  final Album? album;
-  const AlbumCard({super.key, this.album, required this.photos});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 6,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-      margin: const EdgeInsets.all(12),
-      child: InkWell(
-        child: Container(
-          width: double.infinity,
-          height: 200,
-          decoration: BoxDecoration(
-            color: Colors.black,
-            image: DecorationImage(
-              image: NetworkImage(
-                  "https://picsum.photos/${Random.secure().nextInt(601)}"),
-              fit: BoxFit.cover,
-              opacity: 0.7,
-            ),
-          ),
-          child: Container(
-            alignment: Alignment.bottomCenter,
-            padding: const EdgeInsets.all(12),
-            child: Text(
-              album?.title ?? "Some Text",
-              style: const TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white),
-            ),
-          ),
-        ),
-        onTap: () {
-          List<Photo> albumPhotos = getAlbumPhotos(album?.id);
-          Route route = MaterialPageRoute(
-            builder: ((context) => AlbumPage(
-                  album: album!,
-                  albumPhotos: albumPhotos,
-                )),
-          );
-          Navigator.push(context, route);
-        },
-      ),
-    );
-  }
-
-  List<Photo> getAlbumPhotos(int? albumId) {
-    return photos.where((element) => element.albumId == albumId).toList();
   }
 }

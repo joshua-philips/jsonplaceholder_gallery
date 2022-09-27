@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'models/album.dart';
-import 'models/photo.dart';
+import '../models/album.dart';
+import '../models/photo.dart';
 
 class AlbumPage extends StatelessWidget {
   final Album album;
@@ -18,17 +18,17 @@ class AlbumPage extends StatelessWidget {
           gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
             maxCrossAxisExtent: 200,
           ),
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
           itemCount: albumPhotos.length,
-          itemBuilder: (context, index) => Card(
-            child: Container(
-              height: 150,
-              decoration: BoxDecoration(
-                color: Colors.black,
-                image: DecorationImage(
-                  image: NetworkImage(albumPhotos[index].thumbnailUrl!),
-                  fit: BoxFit.cover,
-                  opacity: 0.7,
-                ),
+          itemBuilder: (context, index) => Container(
+            height: 150,
+            margin: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              color: Colors.black,
+              image: DecorationImage(
+                image: NetworkImage(albumPhotos[index].thumbnailUrl!),
+                fit: BoxFit.cover,
+                opacity: 0.7,
               ),
             ),
           ),
