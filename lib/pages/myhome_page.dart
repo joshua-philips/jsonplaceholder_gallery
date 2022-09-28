@@ -2,6 +2,7 @@ import 'dart:developer' as dev;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../models/album.dart';
 import '../models/photo.dart';
 import '../providers/my_theme.dart';
@@ -49,7 +50,10 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(
+          widget.title,
+          style: GoogleFonts.lexendDeca(),
+        ),
       ),
       body: Center(
         child: FutureBuilder(
@@ -78,9 +82,12 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
       drawer: Drawer(
         child: ListView(
           children: [
-            const UserAccountsDrawerHeader(
-              accountName: Text('John Doe'),
-              accountEmail: Text('johndoe@example.com'),
+            UserAccountsDrawerHeader(
+              accountName: Text(
+                'John Doe',
+                style: GoogleFonts.lexendDeca(),
+              ),
+              accountEmail: const Text('johndoe@example.com'),
             ),
             SwitchListTile(
               value: ref.watch(myThemeProvider) == MyThemeMode.light
