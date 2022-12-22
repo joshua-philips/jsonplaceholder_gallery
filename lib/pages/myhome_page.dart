@@ -1,82 +1,46 @@
-import 'dart:developer' as dev;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../models/album.dart';
-import '../models/photo.dart';
+
 import '../providers/my_theme.dart';
 import '../services/fetch.dart';
 import '../widgets/album_card.dart';
 
-class MyHomePage extends ConsumerStatefulWidget {
+class MyHomePage extends ConsumerWidget {
   const MyHomePage({super.key, required this.title});
   final String title;
 
   @override
-  ConsumerState<MyHomePage> createState() => _MyHomePageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final scrollController = ScrollController();
+    final albumsAsync = ref.watch(fetchAlbumsProvider);
 
-class _MyHomePageState extends ConsumerState<MyHomePage> {
-  List<Photo> photos = [];
-  late Future<List<Album>> fetch;
-
-  @override
-  void initState() {
-    super.initState();
-    fetch = fetchAlbums();
-  }
-
-  Future<List<Album>> fetchAlbums() async {
-    List<Album> albums = [];
-    List<dynamic> data =
-        await Fetch().fetchList("https://jsonplaceholder.typicode.com/albums");
-    for (var element in data) {
-      albums.add(Album.fromJson(element));
-    }
-    await fetchPhotos();
-    return albums;
-  }
-
-  Future fetchPhotos() async {
-    List<dynamic> data =
-        await Fetch().fetchList("https://jsonplaceholder.typicode.com/photos");
-    for (var element in data) {
-      photos.add(Photo.fromJson(element));
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          widget.title,
+          title,
           style: GoogleFonts.lexendDeca(),
         ),
       ),
       body: Center(
-        child: FutureBuilder(
-          future: fetch,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.done) {
-              if (snapshot.hasData) {
-                dev.log(snapshot.data!.length.toString());
-                return Scrollbar(
-                  child: ListView.builder(
-                    itemCount: snapshot.data!.length,
-                    itemBuilder: (context, index) {
-                      return AlbumCard(
-                        album: snapshot.data![index],
-                        photos: photos,
-                      );
-                    },
-                  ),
-                );
-              }
-            }
-            return const CircularProgressIndicator();
-          },
+        child: albumsAsync.when(
+          data: (data) => Scrollbar(
+            controller: scrollController,
+            child: RefreshIndicator(
+              onRefresh: () async {
+                ref.refresh(fetchAlbumsProvider.future);
+              },
+              child: ListView.builder(
+                controller: scrollController,
+                itemCount: data.length,
+                itemBuilder: (context, index) {
+                  return AlbumCard(album: data[index]);
+                },
+              ),
+            ),
+          ),
+          error: (err, stack) => Center(child: Text('Error: $err')),
+          loading: () => const CircularProgressIndicator(),
         ),
       ),
       drawer: Drawer(

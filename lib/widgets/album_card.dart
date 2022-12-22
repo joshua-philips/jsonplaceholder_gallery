@@ -6,9 +6,8 @@ import '../models/photo.dart';
 import '../pages/album_page.dart';
 
 class AlbumCard extends StatelessWidget {
-  final List<Photo> photos;
   final Album? album;
-  const AlbumCard({super.key, this.album, required this.photos});
+  const AlbumCard({super.key, this.album});
 
   @override
   Widget build(BuildContext context) {
@@ -42,20 +41,12 @@ class AlbumCard extends StatelessWidget {
           ),
         ),
         onTap: () {
-          List<Photo> albumPhotos = getAlbumPhotos(album?.id);
           Route route = MaterialPageRoute(
-            builder: ((context) => AlbumPage(
-                  album: album!,
-                  albumPhotos: albumPhotos,
-                )),
+            builder: ((context) => AlbumPage(album: album!)),
           );
           Navigator.push(context, route);
         },
       ),
     );
-  }
-
-  List<Photo> getAlbumPhotos(int? albumId) {
-    return photos.where((element) => element.albumId == albumId).toList();
   }
 }
