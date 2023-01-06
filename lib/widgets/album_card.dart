@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import '../models/album.dart';
-import '../models/photo.dart';
 import '../pages/album_page.dart';
 
 class AlbumCard extends StatelessWidget {

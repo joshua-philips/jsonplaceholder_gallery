@@ -39,7 +39,14 @@ class MyHomePage extends ConsumerWidget {
               ),
             ),
           ),
-          error: (err, stack) => Center(child: Text('Error: $err')),
+          error: (err, stack) => Center(
+            child: RefreshIndicator(
+              onRefresh: () async {
+                ref.refresh(fetchAlbumsProvider.future);
+              },
+              child: const Text('Error loading data'),
+            ),
+          ),
           loading: () => const CircularProgressIndicator(),
         ),
       ),
